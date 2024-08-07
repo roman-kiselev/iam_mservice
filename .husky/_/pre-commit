@@ -10,11 +10,11 @@ BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 
 # Регулярное выражение для проверки имени ветки
 
-# if ! [[ "$BRANCH_NAME" =~ ^feature/Task_[0-9]+_[a-zA-Z0-9_]+$ ]]; then
-#     echo "Ошибка: имя ветки '$BRANCH_NAME' не соответствует установленному формату."
-#     echo "Формат имени ветки: feature/Task_123456789_<описание>."
-#     exit 1
-# fi
+if ! [[ "$BRANCH_NAME" =~ ^feature/Task_[0-9]+_[a-zA-Z0-9_]+$ ]]; then
+    echo "Ошибка: имя ветки '$BRANCH_NAME' не соответствует установленному формату."
+    echo "Формат имени ветки: feature/Task_123456789_<описание>."
+    exit 1
+fi
 
 # Выполните ваш линтер (например, ESLint для JavaScript)
 npm run precommit || {
