@@ -74,7 +74,7 @@ export class InviteTokensController {
     @ApiOperation({ summary: 'Подтверждение токена' })
     @ApiResponse({ status: HttpStatus.OK, type: InviteToken })
     @Get('/invitation')
-    async getInviteToken(@ActiveUser() user: ActiveUserData) {
+    async getInviteToken() {
         // return await this.inviteTokensService.getInviteToken();
     }
 

@@ -37,6 +37,7 @@ module.exports = {
     ignorePatterns: ['.eslintrc.js'],
     rules: {
         'prettier/prettier': ['error', { endOfLine: 'auto' }],
+        '@typescript-eslint/no-explicit-any': 'off', // отключите ошибку, когда any
         // добавьте другие ваши правила здесь
     },
 };
