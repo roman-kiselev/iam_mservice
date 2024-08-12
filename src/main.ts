@@ -9,7 +9,9 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const PORT = process.env.PORT || 7777;
     app.enableCors({
-        origin: 'http://localhost:3000',
+        origin: ['http://192.168.3.60:3000', 'http://localhost:3000'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Укажите необходимые методы
+        allowedHeaders: ['Content-Type', 'Authorization'], // Укажите допустимые заголовки
         credentials: true,
     });
     app.use(cookieParser());
@@ -17,7 +19,7 @@ async function bootstrap() {
     app.connectMicroservice<MicroserviceOptions>({
         transport: Transport.RMQ,
         options: {
-            urls: ['amqp://localhost:5672'],
+            urls: [`${process.env.RABBIT_LINK}`],
             queue: 'iam_queue',
             queueOptions: {
                 durable: true,
