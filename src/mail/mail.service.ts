@@ -80,13 +80,13 @@ export class MailService {
 
     async sendInviteTokenAsHtml(email: string, token: string) {
         const subject = 'Приглашение в компанию';
-        const link = `http://localhost:3000/invitation/${token}`;
+        const link = `${process.env.LINK_INVITE}/invitation/${token}`;
 
         const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 5px; background-color: #f9f9f9;">
             <h2 style="color: #333;">Ваc приглашают в компанию</h2>
             <p style="font-size: 16px; color: #555;">Здравствуйте!</p>
-            <p style="font-size: 18px; font-weight: bold; color: #0084ff;">${link}</p>
+            <a style="font-size: 18px; font-weight: bold; color: #0084ff;">${link}</a>
             <p style="font-size: 16px; color: #555;">Пожалуйста, перейдите по ссылке что бы зарегистрироваться в компанию.</p>
             <p style="font-size: 14px; color: #777;">Обратите внимание: ссылка действительна 24 часа.</p>
             <footer style="margin-top: 20px; font-size: 12px; color: #aaa;">
