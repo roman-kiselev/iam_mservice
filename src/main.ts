@@ -10,7 +10,7 @@ async function bootstrap() {
     const PORT = process.env.PORT || 7777;
     app.enableCors({
         origin: `${process.env.LINK_ORIGIN}`,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Укажите необходимые методы
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Укажите необходимые методы
         allowedHeaders: ['Content-Type', 'Authorization'], // Укажите допустимые заголовки
         credentials: true,
     });
