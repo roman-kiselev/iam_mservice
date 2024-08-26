@@ -87,12 +87,12 @@ export class InviteTokensController {
         return await this.inviteTokensService.checkExpiredToken(queryDto.token);
     }
 
+    @Patch('update/:id')
     @ApiBearerAuth()
     @Roles(RoleName.ADMIN)
     @UseGuards(RolesGuard)
     @ApiOperation({ summary: 'Обновить токен' })
     @ApiResponse({ status: HttpStatus.OK, type: InviteTokenDto })
-    @Patch('update/:id')
     async updateToken(
         @Param('id') id: number,
         @ActiveUser() user: ActiveUserData,

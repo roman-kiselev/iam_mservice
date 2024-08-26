@@ -23,11 +23,13 @@ import { ActiveUser } from '../decorators/active-user.decorator';
 import { ActiveUserData } from '../interfaces/active-user-data.interface';
 import { AuthenticationService } from './authentication.service';
 import { Auth } from './decorators/auth.decorators';
+import { ChangePasswordDto } from './dto/edit/change-password.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignInWithoutPasswordDto } from './dto/sign-in/sign-in-without-password.dto';
 import { SignUpWithOrganizationDto } from './dto/sign-up-with-organization.dto';
 import { SignUpWithTokenDto } from './dto/sign-up-with-token.dto';
 import { AuthType } from './enums/auth-type.enum';
+import { AccessTokenGuardAndRole } from './guards/access-token/access-token-and-role.guard';
 import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 import { TokensResponse } from './responses/tokens.response';
 
@@ -168,6 +170,24 @@ export class AuthenticationController {
 
             return res.json({ data: { accessToken: result.accessToken } });
         }
+    }
+
+    @Post('change-password')
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Изменение пароля',
+    })
+    @UseGuards(AccessTokenGuardAndRole)
+    // @Roles(RoleName.ADMIN)
+    // @UseGuards(RolesGuard)
+    changePassword(
+        @Body() changePasswordDto: ChangePasswordDto,
+        @ActiveUser() user: ActiveUserData,
+    ) {
+        return this.authenticationService.changePassword(
+            user.organizationId,
+            changePasswordDto,
+        );
     }
 
     @EventPattern('check-token')

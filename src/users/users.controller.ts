@@ -1,14 +1,36 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
+import {
+    ApiBearerAuth,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from '@nestjs/swagger';
 import { Auth } from 'src/iam/authentication/decorators/auth.decorators';
 import { AuthType } from 'src/iam/authentication/enums/auth-type.enum';
+import { ActiveUser } from 'src/iam/decorators/active-user.decorator';
+import { ActiveUserData } from 'src/iam/interfaces/active-user-data.interface';
+import { UserWithDescriptionDto } from './dto/res/user-with-description.dto';
 import { GetAllUsersWithDto } from './dtoEvents/get-all-users-with.dto';
 import { GetUserDto } from './dtoEvents/get-user-by.dto';
 import { UsersService } from './users.service';
 
+@ApiTags('Users')
+@ApiBearerAuth()
+@Auth(AuthType.Bearer)
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
+
+    @Get('list')
+    @ApiOperation({ summary: 'Получить всех пользователей' })
+    @ApiOkResponse({ type: [UserWithDescriptionDto] })
+    async getAllUsers(@ActiveUser() user: ActiveUserData) {
+        console.log(user);
+        return this.usersService.getAllUsersWith(user.organizationId, [
+            'description',
+        ]);
+    }
 
     @Auth(AuthType.None)
     @Get('/:id')
@@ -17,7 +39,7 @@ export class UsersController {
     }
 
     @EventPattern('get-all-users')
-    async getAllUsers(organizationId: number) {
+    async getAllUsersEvent(organizationId: number) {
         return this.usersService.getAllUsers(organizationId);
     }
 

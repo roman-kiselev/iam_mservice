@@ -98,6 +98,24 @@ export class MailService {
         await this.sendMailAsHtml(email, subject, htmlContent);
     }
 
+    async sendNewPassword(email: string, password: string) {
+        const subject = 'Ваш новый пароль';
+
+        const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 5px; background-color: #f9f9f9;">
+            <h2 style="color: #333;">Ваш новый пароль</h2>
+            <p style="font-size: 16px; color: #555;">Здравствуйте!</p>
+            <p style="font-size: 16px; color: #555;">Новый пароль для входа</p>
+            <p style="font-size: 18px; font-weight: bold; color: #0084ff;">${password}</p>
+            <footer style="margin-top: 20px; font-size: 12px; color: #aaa;">
+                <p>С уважением,<br>Ваша команда</p>
+            </footer>
+        </div>
+    `;
+
+        await this.sendMailAsHtml(email, subject, htmlContent);
+    }
+
     async sendInviteToken(email: string, organizationId: number) {
         const inviteToken = await this.inviteTokensService.getTokenByEmail(
             email,

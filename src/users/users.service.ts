@@ -1,5 +1,6 @@
 import {
     ConflictException,
+    ForbiddenException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -104,17 +105,37 @@ export class UsersService {
     }
 
     async getAllUsersWith(organizationId: number, relations: string[]) {
+        if (!organizationId) {
+            throw new ForbiddenException('Organization id is required');
+        }
         const organization = await this.organizationService.getOrganigationBy({
             id: organizationId,
         });
 
-        const users = await this.userRepository.find({
-            where: {
-                organization: organization,
-            },
-            relations: relations ?? [],
+        const users = (
+            await this.userRepository.find({
+                where: {
+                    organization: organization,
+                },
+                relations: relations ?? [],
+            })
+        ).map((user) => {
+            delete user.password;
+            return user;
         });
 
         return users;
+    }
+
+    async updateUser(id: number, dto: Partial<SignUpDto>) {
+        const user = await this.userRepository.findOneBy({ id });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const userUpdated = await this.userRepository.save({ ...user, ...dto });
+
+        return userUpdated;
     }
 }

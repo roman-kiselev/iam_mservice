@@ -35,13 +35,19 @@ export class User {
     @Column({ nullable: true })
     deletedAt: Date;
 
+    @ApiProperty({
+        type: () => Organization,
+        title: 'Организация',
+    })
     @ManyToOne(() => Organization, (organization) => organization.users)
     organization: Organization;
 
+    @ApiProperty({ type: () => Role, isArray: true, title: 'Роли' })
     @ManyToMany(() => Role, (role) => role.users)
     @JoinTable()
     roles: Role[];
 
+    @ApiProperty({ type: () => UserDecription, title: 'Описание пользователя' })
     @OneToOne(() => UserDecription)
     @JoinColumn()
     description: UserDecription;
