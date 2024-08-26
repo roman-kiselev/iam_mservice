@@ -12,7 +12,7 @@ import jwtConfig from 'src/iam/config/jwt.config';
 import { REQUEST_USER_KEY } from 'src/iam/iam.constants';
 
 @Injectable()
-export class AccessTokenGuard implements CanActivate {
+export class AccessTokenGuardAndRole implements CanActivate {
     constructor(
         private readonly jwtService: JwtService,
         @Inject(jwtConfig.KEY)
@@ -42,6 +42,14 @@ export class AccessTokenGuard implements CanActivate {
             throw new UnauthorizedException();
         }
 
-        return true;
+        const isAdmin = request[REQUEST_USER_KEY].roles.some(
+            (userRole) => userRole === 'admin',
+        );
+
+        if (!isAdmin) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

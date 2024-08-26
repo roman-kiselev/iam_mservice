@@ -3,11 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { InviteTokensModule } from 'src/invite-tokens/invite-tokens.module';
+import { MailModule } from 'src/mail/mail.module';
 import { OrganizationsModule } from 'src/organizations/organizations.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { UsersModule } from 'src/users/users.module';
 import { AuthenticationController } from './authentication/authentication.controller';
 import { AuthenticationService } from './authentication/authentication.service';
+import { AccessTokenGuardAndRole } from './authentication/guards/access-token/access-token-and-role.guard';
 import { AccessTokenGuard } from './authentication/guards/access-token/access-token.guard';
 import { AuthenticationGuard } from './authentication/guards/authentication/authentication.guard';
 import { RefreshTokenIdsStorage } from './authentication/guards/refresh-token/refresh-token-ids.storage';
@@ -31,6 +33,7 @@ import { HashingService } from './hashing/hashing.service';
             provide: APP_GUARD,
             useClass: RolesGuard,
         },
+        AccessTokenGuardAndRole,
         AccessTokenGuard,
         RefreshTokenIdsStorage,
         AuthenticationService,
@@ -42,6 +45,7 @@ import { HashingService } from './hashing/hashing.service';
         OrganizationsModule,
         InviteTokensModule,
         RedisModule,
+        MailModule,
         // forwardRef(() =>
         //     ClientsModule.register([
         //         {

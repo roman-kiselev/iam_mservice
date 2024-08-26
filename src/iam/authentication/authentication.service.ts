@@ -1,8 +1,10 @@
 import {
+    BadRequestException,
     ConflictException,
     ForbiddenException,
     Inject,
     Injectable,
+    NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -10,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { TimeHelper } from 'src/invite-tokens/helpers/time.helper';
 import { InviteTokensService } from 'src/invite-tokens/invite-tokens.service';
+import { MailService } from 'src/mail/mail.service';
 import { OrganizationsService } from 'src/organizations/organizations.service';
 import { RedisService } from 'src/redis/redis.service';
 import { RoleName } from 'src/roles/enums/RoleName';
@@ -19,6 +22,7 @@ import jwtConfig from '../config/jwt.config';
 import { HashingService } from '../hashing/hashing.service';
 import { ActiveUserData } from '../interfaces/active-user-data.interface';
 import { RefreshTokenData } from '../interfaces/refresh-token-data.interface';
+import { ChangePasswordDto } from './dto/edit/change-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignInWithoutPasswordDto } from './dto/sign-in/sign-in-without-password.dto';
@@ -39,7 +43,34 @@ export class AuthenticationService {
         private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
         private readonly inviteTokenService: InviteTokensService,
         private readonly redisService: RedisService,
+        private readonly mailService: MailService,
     ) {}
+
+    private async generateRandomPassword(
+        length: number = 8,
+        includeSpecialCharacters: boolean = true,
+    ): Promise<string> {
+        const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
+        const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const numericChars = '0123456789';
+        const specialChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        // Объединяем все символы в один набор
+        let allChars = lowerCaseChars + upperCaseChars + numericChars;
+
+        if (includeSpecialCharacters) {
+            allChars += specialChars;
+        }
+
+        let password = '';
+
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * allChars.length);
+            password += allChars[randomIndex];
+        }
+
+        return password;
+    }
 
     private async signToken<T>(userId: number, expiresIn: string, payload?: T) {
         return await this.jwtService.signAsync(
@@ -304,23 +335,36 @@ export class AuthenticationService {
         }
     }
 
-    // async recovery(email: string) {
-    //     const user = await this.userService.findOneBy({email});
-    //     if (!user) {
-    //       throw new NotFoundException(`User not found with email: ${email}`);
-    //     }
+    async changePassword(organizationId: number, dto: ChangePasswordDto) {
+        const organization =
+            await this.organizationService.findUnique(organizationId);
+        if (!organization) {
+            throw new NotFoundException('Organization not found');
+        }
+        const newPassword = await this.generateRandomPassword(8, true);
+        const hashPassword = await this.hashingService.hash(newPassword);
+        const user = await this.userService.findOneBy({
+            id: dto.userId,
+            organization,
+        });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        const result = await this.userService.updateUser(user.id, {
+            ...user,
+            password: hashPassword,
+        });
 
-    //     const newPassword = this.passwordService.generateString();
+        if (!result) {
+            throw new BadRequestException('Error while changing password');
+        }
 
-    //     await this.userService.updatePassword(
-    //       user.id,
-    //       await this.hashingService.hash(newPassword),
-    //     );
-
-    //     await this.mailService.sendEmail({
-    //       to: user.email,
-    //       subject: 'Password Recovery for ANT',
-    //       text: `New password: ${newPassword}`,
-    //     });
-    //   }
+        try {
+            await this.mailService.sendNewPassword(user.email, newPassword);
+            return true;
+        } catch (e) {
+            console.error(e);
+            throw new Error('Error while sending email');
+        }
+    }
 }
