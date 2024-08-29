@@ -11,6 +11,7 @@ import { RoleName } from 'src/roles/enums/RoleName';
 import { RolesService } from 'src/roles/roles.service';
 import { UserDescriptionService } from 'src/user-description/user-description.service';
 import { Repository } from 'typeorm';
+import { ChangeRolesDto } from './dto/update/change-roles.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -22,6 +23,31 @@ export class UsersService {
         private rolesService: RolesService,
         private readonly userDescriptionService: UserDescriptionService,
     ) {}
+
+    private async addRoles(user: User, roles: number[]) {
+        // const user = await this.userRepository.findOneBy({ id: userId });
+        const rolesPromise = roles.map((roleId) => {
+            return this.rolesService.findOneBy({ id: roleId });
+        });
+
+        const rolesArr = await Promise.all(rolesPromise);
+        console.log(rolesArr);
+        // const fullRoles = [...user.roles, ...rolesArr];
+        // console.log(fullRoles);
+
+        return this.userRepository.update(user.id, {
+            roles: rolesArr,
+        });
+    }
+
+    // private async removeRoles(userId: number, roles: number[]) {
+    //     const user = await this.userRepository.findOneBy({ id: userId });
+    //     const rolesPromise = roles.map((roleId) => {
+    //         return this.rolesService.findOneBy({ id: roleId });
+    //     });
+
+    //     const rolesArr = await Promise.all(rolesPromise);
+    // }
 
     async findOneBy(criteria: Partial<User>, relations: string[] = []) {
         const user = await this.userRepository.findOne({
@@ -129,13 +155,24 @@ export class UsersService {
 
     async updateUser(id: number, dto: Partial<SignUpDto>) {
         const user = await this.userRepository.findOneBy({ id });
-
         if (!user) {
             throw new NotFoundException('User not found');
         }
-
         const userUpdated = await this.userRepository.save({ ...user, ...dto });
 
         return userUpdated;
+    }
+
+    async changeRoles(id: number, dto: ChangeRolesDto) {
+        console.log(id);
+        console.log(dto);
+        const user = await this.findOneBy({ id }, ['roles', 'description']);
+        const rolesPromise = dto.roles.map((role) => {
+            return this.rolesService.findOneBy({ id: role });
+        });
+        const roles = await Promise.all(rolesPromise);
+        user.roles = [];
+
+        return this.userRepository.save({ ...user, roles });
     }
 }
