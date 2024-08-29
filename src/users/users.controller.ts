@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import {
     ApiBearerAuth,
@@ -11,6 +11,7 @@ import { AuthType } from 'src/iam/authentication/enums/auth-type.enum';
 import { ActiveUser } from 'src/iam/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/iam/interfaces/active-user-data.interface';
 import { UserWithDescriptionDto } from './dto/res/user-with-description.dto';
+import { ChangeRolesDto } from './dto/update/change-roles.dto';
 import { GetAllUsersWithDto } from './dtoEvents/get-all-users-with.dto';
 import { GetUserDto } from './dtoEvents/get-user-by.dto';
 import { UsersService } from './users.service';
@@ -30,6 +31,22 @@ export class UsersController {
         return this.usersService.getAllUsersWith(user.organizationId, [
             'description',
         ]);
+    }
+
+    @Get('/one/:id')
+    @ApiOperation({ summary: 'Получить пользователя' })
+    @ApiOkResponse({ type: UserWithDescriptionDto })
+    async getOneUser(@Param('id') id: number) {
+        return this.usersService.findOneBy({ id }, ['description', 'roles']);
+    }
+
+    @Auth(AuthType.None)
+    @Patch('/change-roles/:id')
+    // @Roles(RoleName.ADMIN)
+    // @UseGuards(RolesGuard)
+    @ApiOperation({ summary: 'Изменить роли' })
+    async changeRoles(@Param('id') id: number, @Body() dto: ChangeRolesDto) {
+        return this.usersService.changeRoles(id, dto);
     }
 
     @Auth(AuthType.None)
