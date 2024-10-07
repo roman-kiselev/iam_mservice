@@ -31,9 +31,7 @@ export class UsersService {
         });
 
         const rolesArr = await Promise.all(rolesPromise);
-        console.log(rolesArr);
         // const fullRoles = [...user.roles, ...rolesArr];
-        // console.log(fullRoles);
 
         return this.userRepository.update(user.id, {
             roles: rolesArr,
@@ -75,7 +73,6 @@ export class UsersService {
 
             return user;
         } catch (e) {
-            console.log(e);
             const error = new Error(e);
             return new NotFoundException(error);
         }
@@ -164,8 +161,6 @@ export class UsersService {
     }
 
     async changeRoles(id: number, dto: ChangeRolesDto) {
-        console.log(id);
-        console.log(dto);
         const user = await this.findOneBy({ id }, ['roles', 'description']);
         const rolesPromise = dto.roles.map((role) => {
             return this.rolesService.findOneBy({ id: role });

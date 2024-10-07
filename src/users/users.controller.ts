@@ -27,7 +27,6 @@ export class UsersController {
     @ApiOperation({ summary: 'Получить всех пользователей' })
     @ApiOkResponse({ type: [UserWithDescriptionDto] })
     async getAllUsers(@ActiveUser() user: ActiveUserData) {
-        console.log(user);
         return this.usersService.getAllUsersWith(user.organizationId, [
             'description',
         ]);
