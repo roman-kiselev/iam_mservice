@@ -14,10 +14,10 @@ import { InviteTokensModule } from './invite-tokens/invite-tokens.module';
 import { MailModule } from './mail/mail.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { RedisModule } from './redis/redis.module';
 import { RolesModule } from './roles/roles.module';
 import { UserDescriptionModule } from './user-description/user-description.module';
 import { UsersModule } from './users/users.module';
-import { RedisModule } from './redis/redis.module';
 
 type DBName = 'postgres';
 
