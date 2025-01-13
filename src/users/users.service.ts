@@ -62,20 +62,15 @@ export class UsersService {
         criteria: Partial<User>,
         relations: string[] = [],
     ) {
-        try {
-            const user = await this.userRepository.findOne({
-                where: criteria,
-                relations,
-            });
-            if (!user) {
-                throw new NotFoundException('User not found');
-            }
-
-            return user;
-        } catch (e) {
-            const error = new Error(e);
-            return new NotFoundException(error);
+        const user = await this.userRepository.findOne({
+            where: criteria,
+            relations,
+        });
+        if (!user) {
+            throw new NotFoundException('User not found');
         }
+
+        return user;
     }
 
     async checkUniqueEmail(email: string) {

@@ -84,7 +84,6 @@ export class AuthenticationController {
         description: 'Access и refresh токены',
         type: TokensResponse,
     })
-    @HttpCode(HttpStatus.OK)
     @Post('sign-in')
     async signIn(@Res() res: Response, @Body() signInDto: SignInDto) {
         const result = await this.authenticationService.signIn(signInDto);

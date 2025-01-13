@@ -194,7 +194,7 @@ export class AuthenticationService {
 
         if (user instanceof User) {
             if (user.banned === true) {
-                throw new ForbiddenException('User is banned');
+                throw new ForbiddenException('Нет доступа');
             }
 
             const isEqual = await this.hashingService.compare(
@@ -203,7 +203,9 @@ export class AuthenticationService {
             );
 
             if (!isEqual) {
-                throw new ForbiddenException('Password or email is incorrect');
+                throw new ForbiddenException(
+                    'Пароль или почта введены неверно',
+                );
             }
 
             const result = await this.generateTokens(user);
